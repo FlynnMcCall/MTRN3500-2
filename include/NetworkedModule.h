@@ -18,6 +18,12 @@ For clarification of inheritance requirements see diagram in the assignment spec
 //#define WEEDER_ADDRESS "192.168.1.200"
 #define DISPLAY_ADDRESS "127.0.0.1" // Display is always running locally (run the MATLAB code separately)
 
+#define AUTHENICATION "5488467\n"
+
+#define LIDAR_PORT 23000
+#define GNSS_PORT  24000
+#define VC_PORT	   25000
+
 ref class NetworkedModule abstract : public UGVModule
 {
 	public:
@@ -25,7 +31,8 @@ ref class NetworkedModule abstract : public UGVModule
 		virtual error_state communicate() = 0;								// Communicate over TCP connection (includes any error checking required on data)
 
 	protected:
-		TcpClient^ Client;					// Handle for TCP connection
-		NetworkStream^ Stream;				// Handle for TCP data stream
-		array<unsigned char>^ ReadData;		// Array to store sensor Data (only used for sensor modules)
+		TcpClient^ Client;
+		NetworkStream^ Stream;
+		array<unsigned char>^ SendData;
+		array<unsigned char>^ ReadData;	
 };

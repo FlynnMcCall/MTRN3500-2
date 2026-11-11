@@ -13,6 +13,7 @@ shared to other modules as required.
 #using <System.dll>
 #include <iostream>
 #include <cstdint>
+#include <msclr\lock.h>
 
 using namespace System;
 using namespace System::Threading;
@@ -20,6 +21,7 @@ using namespace System::Net::Sockets;
 using namespace System::Net;
 using namespace System::Text;
 using namespace System::Diagnostics;
+using namespace msclr;
 
 // Defines which processes are critical and not critical
 // Ordering of processes in the mask should be based on the order in the UnitFlags type below.

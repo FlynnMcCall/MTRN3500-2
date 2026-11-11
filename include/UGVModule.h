@@ -13,6 +13,7 @@ For clarification of inheritance requirements see diagram in the assignment spec
 
 #include <iostream>
 #include <SMObjects.h>
+#define CRASH_LIMIT 1000
 
 // ERROR HANDLING. Use this as the return value in your functions
 enum error_state {
@@ -21,38 +22,31 @@ enum error_state {
 	ERR_NO_DATA,
 	ERR_INVALID_DATA,
 	ERR_SM,
-	ERR_CONNECTION
+	ERR_CONNECTION,
+	ERR_CRITICAL_THREAD_FAILURE,
+	ERR_TMM_FAILURE
 	// Define your own additional error types as needed
 };
 
 ref class UGVModule abstract
 {
 	public:
-		/**
-		 * Send/Recieve data from shared memory structures
-		 *
-		 * @returns the success of this function at completion
-		*/
+		virtual void threadFunction() = 0;
+		property uint8_t bitmask
+		{
+			virtual uint8_t get() = 0;
+		}
+
+	protected:
+		SM_ThreadManagement^ SM_TM_;
+		Stopwatch^ Stopwatch_;
+
 		virtual error_state processSharedMemory() = 0;
 
-		/**
-		 * Get Shutdown signal for the current, from Process Management SM
-		 *
-		 * @returns the current state of the shutdown flag
-		*/
+		virtual error_state processHeartbeat() = 0;
+
 		virtual bool getShutdownFlag() = 0;
 
-		/**
-		 * Main runner for the thread to perform all required actions
-		*/
-		virtual void threadFunction() = 0;
-
-		/**
-		 * A helper function for printing a helpful error message based on the error type
-		 * returned from a function
-		 *
-		 * @param error the error that should be printed out
-		*/
 		static void printError(error_state error)
 		{
 			switch (error)
@@ -70,6 +64,5 @@ ref class UGVModule abstract
 			}
 		}
 
-	protected:
-		SM_ThreadManagement^ SM_TM_;
+		
 };
