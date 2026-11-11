@@ -60,6 +60,10 @@ void VehicleControl::threadFunction() {
 		processHeartbeat();
 	}
 
+	TargetSteer = 0.0;
+	TargetSpeed = 0.0;
+	communicate();
+
 	Console::WriteLine(this->name + "thread returning");
 }
 

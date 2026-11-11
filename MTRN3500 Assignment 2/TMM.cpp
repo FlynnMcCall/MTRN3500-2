@@ -4,6 +4,7 @@
 #include "Controller.h"
 #include "VC.h"
 #include "Display.h"
+#include "CrashAvoidance.h"
 
 
 error_state ThreadManagement::setupSharedMemory() {
@@ -27,6 +28,7 @@ error_state ThreadManagement::setupThreads() {
 		gcnew Controller(SM_TM_, SM_VehicleControl_),
 		gcnew VehicleControl(SM_TM_, SM_VehicleControl_),
 		//gcnew Display(SM_TM_, SM_Laser_),
+		gcnew CrashAvoidance(SM_TM_, SM_Laser_,  SM_VehicleControl_),
 	};
 
 	ThreadList = gcnew array<Thread^>(ModuleList->Length);
