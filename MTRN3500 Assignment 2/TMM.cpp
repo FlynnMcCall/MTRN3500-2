@@ -1,8 +1,8 @@
 #include "TMM.h"
 #include "LiDAR.h"
 #include "GNSS.h"
+#include "Controller.h"
 
-#define TAG "[TMM]: "
 
 error_state ThreadManagement::setupSharedMemory() {
 	try {
@@ -13,29 +13,30 @@ error_state ThreadManagement::setupSharedMemory() {
 		return error_state::SUCCESS;
 	}
 	catch (Exception^ e) {
-		Console::WriteLine(TAG + "setup failed with error: {0}", e);
+		Console::WriteLine(this->name + "setup failed with error: {0}", e);
 		return error_state::ERR_STARTUP;
 	}
 }
 
 error_state ThreadManagement::setupThreads() {
-	ThreadPropertiesList = gcnew array<ThreadProperties^>{
-		gcnew ThreadProperties(gcnew ThreadStart(gcnew LiDAR(SM_TM_, SM_Laser_), &LiDAR::threadFunction), true, bit_LASER, "LiDAR Thread"),
-		gcnew ThreadProperties(gcnew ThreadStart(gcnew GNSS(SM_TM_, SM_GPS_), &GNSS::threadFunction), false, bit_GPS, "GNSS Thread"),
+	ModuleList = gcnew array<UGVModule^>{
+		gcnew LiDAR(SM_TM_, SM_Laser_),
+		gcnew GNSS(SM_TM_, SM_GPS_),
+		//gcnew Controller(SM_TM_, SM_VehicleControl_),
 	};
 
-	ThreadList = gcnew array<Thread^>(ThreadPropertiesList->Length);
-	StopwatchList = gcnew array<Stopwatch^>(ThreadPropertiesList->Length);
-	SM_TM_->ThreadBarrier = gcnew Barrier(ThreadPropertiesList->Length + 1);
+	ThreadList = gcnew array<Thread^>(ModuleList->Length);
+	StopwatchList = gcnew array<Stopwatch^>(ModuleList->Length);
+	SM_TM_->ThreadBarrier = gcnew Barrier(ModuleList->Length + 1);
 
 	return error_state::SUCCESS;
 }
 
 error_state ThreadManagement::startThreads() {
-	for (int i = 0; i < ThreadPropertiesList->Length; i++)
+	for (int i = 0; i < ModuleList->Length; i++)
 	{
 		StopwatchList[i] = gcnew Stopwatch;
-		ThreadList[i] = gcnew Thread(ThreadPropertiesList[i]->ThreadStart_);
+		ThreadList[i] = gcnew Thread(gcnew ThreadStart(ModuleList[i], &UGVModule::threadFunction));
 		ThreadList[i]->Start();
 	}
 
@@ -57,9 +58,9 @@ error_state ThreadManagement::processHeartbeat()
 {
 	for (int i = 0; i < ThreadList->Length; i++)
 	{
-		if (SM_TM_->heartbeat & ThreadPropertiesList[i]->BitID)
+		if (SM_TM_->heartbeat & ModuleList[i]->bitmask)
 		{
-			SM_TM_->heartbeat &= ~ThreadPropertiesList[i]->BitID;
+			SM_TM_->heartbeat &= ~ModuleList[i]->bitmask;
 			StopwatchList[i]->Restart();
 		}
 
@@ -67,18 +68,18 @@ error_state ThreadManagement::processHeartbeat()
 		{
 			if (StopwatchList[i]->ElapsedMilliseconds > CRASH_LIMIT)
 			{
-				if (ThreadPropertiesList[i]->Critical)
+				if (ModuleList[i]->bitmask & CRITICALMASK)
 				{
-					Console::WriteLine(ThreadPropertiesList[i]->ThreadName + " (critical) failure. Shutting down all threads");
+
 					shutdownModules();
 					return error_state::ERR_CRITICAL_THREAD_FAILURE;
 				}
 
 				else
 				{
-					Console::WriteLine(ThreadPropertiesList[i]->ThreadName + " failed...Restarting");
+					Console::WriteLine(this->name + ModuleList[i]->name + " failed... Restarting");
 					ThreadList[i]->Abort();
-					ThreadList[i] = gcnew Thread(ThreadPropertiesList[i]->ThreadStart_);
+					ThreadList[i] = gcnew Thread(gcnew ThreadStart(ModuleList[i], &UGVModule::threadFunction));
 					SM_TM_->ThreadBarrier = gcnew Barrier(1);
 					ThreadList[i]->Start();
 				}
@@ -98,14 +99,14 @@ bool ThreadManagement::getShutdownFlag() {
 
 void ThreadManagement::threadFunction()
 {
-	Console::WriteLine(TAG + "TMM Thread is starting");
+	Console::WriteLine(this->name + "TMM Thread is starting");
 
 	setupSharedMemory();
 	setupThreads();
 	
 	startThreads();
 	
-	Console::WriteLine(TAG + "TMM Thread is running...\nPress q to terminate");
+	Console::WriteLine(this->name + "TMM Thread is running...\nPress q to terminate");
 
 	while (!getShutdownFlag())
 	{
@@ -115,14 +116,14 @@ void ThreadManagement::threadFunction()
 			break;
 		}
 	}
-	Console::WriteLine(TAG + "TMM Thread terminating all modules");
+	Console::WriteLine(this->name + "TMM Thread terminating all modules");
 	shutdownModules();
 
 	//join all threads
-	for (int i = 0; i < ThreadPropertiesList->Length; i++)
+	for (int i = 0; i < ThreadList->Length; i++)
 	{
 		ThreadList[i]->Join();
 	}
 
-	Console::WriteLine(TAG + "All modules terminated");
+	Console::WriteLine(this->name + "All modules terminated");
 }

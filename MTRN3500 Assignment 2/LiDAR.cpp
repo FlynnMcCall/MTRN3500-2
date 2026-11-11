@@ -1,7 +1,5 @@
 #include "LiDAR.h"
 
-#define TAG "[LiDAR]: "
-
 void LiDAR::setup() {
 	Stopwatch_ = gcnew Stopwatch;
 	Stopwatch_->Start();
@@ -46,7 +44,7 @@ error_state LiDAR::communicate() {
 	/*
 	int len = Stream->Read(ReadData, 0, ReadData->Length);
 	String^ resp = Encoding::ASCII->GetString(ReadData, 0, len);
-	Console::WriteLine(TAG + "{0}\n", resp);
+	Console::WriteLine(this->name + "{0}\n", resp);
 	// */
 
 	return error_state::SUCCESS;
@@ -58,12 +56,14 @@ error_state LiDAR::processSharedMemory() {
 
 	array<String^>^ Fragments;
 	Fragments = response->Split(' ');
+
 	Monitor::Enter(SM_Laser_->lockObject);
 	int NumPoints = Convert::ToInt32(Fragments[25], 16);
 
 	if (NumPoints != STANDARD_LASER_LENGTH) {
-		Console::WriteLine(TAG + "Wrong number of points. got {0}, expected {1}", NumPoints, STANDARD_LASER_LENGTH);
-		throw gcnew Exception(TAG + "Wrong number of points");
+		Console::WriteLine(this->name + "Wrong number of points. got {0}, expected {1}", NumPoints, STANDARD_LASER_LENGTH);
+		Monitor::Exit(SM_Laser_->lockObject);
+		throw gcnew Exception(this->name + "Wrong number of points");
 	}
 
 	for (int i = 0; i < STANDARD_LASER_LENGTH; i++) {
@@ -77,7 +77,7 @@ error_state LiDAR::processSharedMemory() {
 void LiDAR::threadFunction() {
 	setup();
 	connect(WEEDER_ADDRESS, LIDAR_PORT);
-	Console::WriteLine(TAG + "LiDAR set up...");
+	Console::WriteLine(this->name + "LiDAR set up...");
 	SM_TM_->ThreadBarrier->SignalAndWait();
 
 	while (!getShutdownFlag()) {
@@ -86,7 +86,7 @@ void LiDAR::threadFunction() {
 		processSharedMemory();
 		processHeartbeat();
 	}
-	Console::WriteLine(TAG + "thread returning");
+	Console::WriteLine(this->name + "thread returning");
 }
 
 bool LiDAR::getShutdownFlag() {

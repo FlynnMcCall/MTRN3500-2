@@ -10,6 +10,13 @@ public:
             return bit_LASER;
         }
     }
+    property String^ name
+    {
+        String^ get() override {
+            return "[LiDAR] ";
+        }
+    }
+
 
     LiDAR::LiDAR(SM_ThreadManagement^ SM_TM, SM_Laser^ SM_Laser)
     {

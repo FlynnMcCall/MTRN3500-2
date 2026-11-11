@@ -1,7 +1,5 @@
 #include "GNSS.h"
 
-#define TAG "[GNSS]: "
-
 void GNSS::setup() {
 	Stopwatch_ = gcnew Stopwatch;
 	Stopwatch_->Start();
@@ -38,7 +36,7 @@ error_state GNSS::processSharedMemory() {
 
 		if (ReadData->Length - 256 < start) {
 			// non fatal error
-			Console::WriteLine(TAG + "no data");
+			Console::WriteLine(this->name + "no data");
 			return ERR_NO_DATA;
 		}
 	}
@@ -63,7 +61,7 @@ error_state GNSS::processSharedMemory() {
 void GNSS::printData() {
 	Monitor::Enter(SM_GPS_->lockObject);
 	Console::WriteLine(
-		TAG +
+		this->name +
 		((SM_GPS_->CRC == SM_GPS_->Computed_CRC) ? "" : "INVALID ") +
 		L"Data Packet"
 		L"\n{0:X8} CRC (given)"
@@ -104,7 +102,7 @@ error_state GNSS::processHeartbeat() {
 void GNSS::threadFunction() {
 	setup();
 	connect(WEEDER_ADDRESS, GNSS_PORT);
-	Console::WriteLine(TAG + "GNSS set up...");
+	Console::WriteLine(this->name + "GNSS set up...");
 	SM_TM_->ThreadBarrier->SignalAndWait();
 
 	while (!getShutdownFlag()) {
@@ -113,7 +111,7 @@ void GNSS::threadFunction() {
 		printData();
 		processHeartbeat();
 	}
-	Console::WriteLine(TAG + "thread returning");
+	Console::WriteLine(this->name + "thread returning");
 }
 
 bool GNSS::getShutdownFlag() {

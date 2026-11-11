@@ -36,6 +36,12 @@ ref class UGVModule abstract
 		{
 			virtual uint8_t get() = 0;
 		}
+		property String^ name
+		{
+			virtual String^ get() = 0;
+		}
+
+
 
 	protected:
 		SM_ThreadManagement^ SM_TM_;

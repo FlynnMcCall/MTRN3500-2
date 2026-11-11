@@ -9,6 +9,13 @@ public:
             return bit_GPS;
         }
     }
+    property String^ name
+    {
+        String^ get() override {
+            return "[GNSS] ";
+        }
+    }
+
 
     GNSS::GNSS(SM_ThreadManagement^ SM_TM, SM_GPS^ SM_GPS)
     {

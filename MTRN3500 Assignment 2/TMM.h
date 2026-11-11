@@ -30,6 +30,12 @@ public:
             return bit_TM;
         }
     }
+    property String^ name
+    {
+        String^ get() override {
+            return "[TMM] ";
+        }
+    }
 
 protected:
 
@@ -54,5 +60,5 @@ private:
 
     array<Stopwatch^>^ StopwatchList;
     array<Thread^>^ ThreadList;
-    array<ThreadProperties^>^ ThreadPropertiesList;
+    array<UGVModule^>^ ModuleList;
 };

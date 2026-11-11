@@ -8,12 +8,10 @@ ALEXANDER CUNIO 2024
 This file outlines the objects that should be utilised for shared memory between your
 individual modules. These should all be created by the thread management module and 
 shared to other modules as required.
-*/
-
+*/  
 #using <System.dll>
 #include <iostream>
 #include <cstdint>
-#include <msclr\lock.h>
 
 using namespace System;
 using namespace System::Threading;
@@ -21,22 +19,22 @@ using namespace System::Net::Sockets;
 using namespace System::Net;
 using namespace System::Text;
 using namespace System::Diagnostics;
-using namespace msclr;
 
 // Defines which processes are critical and not critical
 // Ordering of processes in the mask should be based on the order in the UnitFlags type below.
 // You should change this based on what processes are and are not critical
-constexpr uint8_t NONCRITICALMASK = 0xff;
-constexpr uint8_t CRITICALMASK =    0x00;
+constexpr uint8_t CRITICALMASK =    0x1f;
+constexpr uint8_t NONCRITICALMASK = ~CRITICALMASK;
 
-constexpr uint8_t bit_ALL =             0b01111111;
-constexpr uint8_t bit_TM =              0b00000001;
-constexpr uint8_t bit_LASER =           0b00000010;
-constexpr uint8_t bit_GPS =             0b00000100;
-constexpr uint8_t bit_VC =              0b00001000;
-constexpr uint8_t bit_CONTROLLER =      0b00010000;
-constexpr uint8_t bit_DISPLAY =         0b00100000;
-constexpr uint8_t bit_CRASHAVOIDANCE =  0b01000000;
+constexpr uint8_t bit_ALL       = 0b01111111;
+constexpr uint8_t bit_TM        = 0b00000001;
+constexpr uint8_t bit_LASER     = 0b00000010;
+constexpr uint8_t bit_VC        = 0b00000100;
+constexpr uint8_t bit_DISPLAY   = 0b00001000;
+constexpr uint8_t bit_CONTROLLER= 0b00010000;
+
+constexpr uint8_t bit_GPS            = 0b10000000;
+constexpr uint8_t bit_CRASHAVOIDANCE = 0b01000000;
 
 ref class SM_ThreadManagement
 {
