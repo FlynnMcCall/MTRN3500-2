@@ -43,9 +43,9 @@ error_state GNSS::processSharedMemory() {
 	}
 
 	Monitor::Enter(SM_GPS_->lockObject);
-	SM_GPS_->Northing = BitConverter::ToDouble(ReadData, start + head_len + 16);
-	SM_GPS_->Easting  = BitConverter::ToDouble(ReadData, start + head_len + 24);
-	SM_GPS_->Height   = BitConverter::ToDouble(ReadData, start + head_len + 32);
+	SM_GPS_->Northing = BitConverter::ToDouble(ReadData, start + head_len + 16);//16
+	SM_GPS_->Easting  = BitConverter::ToDouble(ReadData, start + head_len + 24);//24
+	SM_GPS_->Height   = BitConverter::ToDouble(ReadData, start + head_len + 32);//32
 	SM_GPS_->CRC = BitConverter::ToInt32(ReadData, start + head_len + 80);
 	SM_GPS_->Computed_CRC = CalculateBlockCRC32(head_len + 80, buffer);
 	Monitor::Exit(SM_GPS_->lockObject);
@@ -86,6 +86,7 @@ error_state GNSS::processHeartbeat() {
 		if (Stopwatch_->ElapsedMilliseconds > CRASH_LIMIT)
 		{
 			SM_TM_->shutdown = 0xFF;
+			Console::WriteLine(name + "TMM failure, shutting down");
 			return error_state::ERR_TMM_FAILURE;
 		}
 	}
@@ -95,13 +96,16 @@ error_state GNSS::processHeartbeat() {
 
 
 void GNSS::threadFunction() {
+	Console::WriteLine(this->name + "starting...");
+
 	connect(WEEDER_ADDRESS, GNSS_PORT);
 
-	Console::WriteLine(this->name + "GNSS set up...");
+	Console::WriteLine(this->name + "set up...");
 	SM_TM_->ThreadBarrier->SignalAndWait();
 
 	Stopwatch_ = gcnew Stopwatch;
 	Stopwatch_->Start();
+	Console::WriteLine(name + "running...");
 
 	while (!getShutdownFlag()) {
 		Thread::Sleep(100);

@@ -4,9 +4,11 @@
 // C++ / CLI support for v143 build tools(14.33 - 17.3)
 
 int main(void) {
+	Console::CursorVisible = false;
 	ThreadManagement^ threadManager = gcnew ThreadManagement();
 	threadManager->threadFunction();
 
+	Console::WriteLine("Press any key x2 to exit");
 	Console::ReadKey();
 	Console::ReadKey();
 

@@ -70,12 +70,15 @@ error_state LiDAR::processSharedMemory() {
 }
 
 void LiDAR::threadFunction() {
+	Console::WriteLine(this->name + "starting...");
+
 	connect(WEEDER_ADDRESS, LIDAR_PORT);
-	Console::WriteLine(this->name + "LiDAR set up...");
+	Console::WriteLine(this->name + "set up...");
 
 	SM_TM_->ThreadBarrier->SignalAndWait();
 	Stopwatch_ = gcnew Stopwatch;
 	Stopwatch_->Start();
+	Console::WriteLine(name + "running...");
 
 	while (!getShutdownFlag()) {
 		communicate();
@@ -103,6 +106,7 @@ error_state LiDAR::processHeartbeat() {
 		if (Stopwatch_->ElapsedMilliseconds > CRASH_LIMIT)
 		{
 			SM_TM_->shutdown = 0xFF;
+			Console::WriteLine(name + "TMM failure, shutting down");
 			return error_state::ERR_TMM_FAILURE;
 		}
 	}

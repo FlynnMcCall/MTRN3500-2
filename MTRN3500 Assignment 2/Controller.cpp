@@ -5,14 +5,19 @@
 #define INPUT_MODE 1
 
 void Controller::threadFunction() {
+	Console::WriteLine(this->name + "starting...");
+
 	ControllerInterface_ = new ControllerInterface(1, INPUT_MODE);
 	while (!ControllerInterface_->IsConnected()) {
 		Thread::Sleep(50);
 	}
 
 	String^ mode = (INPUT_MODE == 0) ? "Xbox" : "keyboard";
-	Console::WriteLine(this->name + "Controller set up for {0}...", INPUT_MODE);
+	Console::WriteLine(this->name + "mode {0}", INPUT_MODE);
+	Console::WriteLine(this->name + "set up...");
+
 	SM_TM_->ThreadBarrier->SignalAndWait();
+	Console::WriteLine(this->name + "running...");
 
 	Stopwatch_ = gcnew Stopwatch;
 	Stopwatch_->Start();
@@ -24,7 +29,7 @@ void Controller::threadFunction() {
 	}
 	delete ControllerInterface_;
 	blankCommands();
-	Console::WriteLine(this->name + "terminated");
+	Console::WriteLine(this->name + "thread returning");
 }
 
 
@@ -74,7 +79,7 @@ error_state Controller::processSharedMemory() {
 	SM_VehicleControl_->Steering = Steering;
 	Monitor::Exit(SM_VehicleControl_->lockObject);
 
-	Console::WriteLine(this->name + "\nSpeed\t{0:F2}\nSteer\t{1:F2}", Speed, Steering);
+	// Console::WriteLine(this->name + "\nSpeed\t{0:F2}\nSteer\t{1:F2}", Speed, Steering);
 	// */
 	return error_state::SUCCESS;
 }
@@ -92,6 +97,7 @@ error_state Controller::processHeartbeat() {
 		if (Stopwatch_->ElapsedMilliseconds > CRASH_LIMIT)
 		{
 			SM_TM_->shutdown = 0xFF;
+			Console::WriteLine(name + "TMM failure, shutting down");
 			return error_state::ERR_TMM_FAILURE;
 		}
 	}

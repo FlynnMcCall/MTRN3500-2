@@ -2,6 +2,7 @@
 #include "LiDAR.h"
 #include "GNSS.h"
 #include "Controller.h"
+#include "VC.h"
 
 
 error_state ThreadManagement::setupSharedMemory() {
@@ -21,8 +22,9 @@ error_state ThreadManagement::setupSharedMemory() {
 error_state ThreadManagement::setupThreads() {
 	ModuleList = gcnew array<UGVModule^>{
 		gcnew LiDAR(SM_TM_, SM_Laser_),
-		//gcnew GNSS(SM_TM_, SM_GPS_),
+		gcnew GNSS(SM_TM_, SM_GPS_),
 		gcnew Controller(SM_TM_, SM_VehicleControl_),
+		gcnew VehicleControl(SM_TM_, SM_VehicleControl_),
 	};
 
 	ThreadList = gcnew array<Thread^>(ModuleList->Length);
@@ -40,8 +42,9 @@ error_state ThreadManagement::startThreads() {
 		ThreadList[i] = gcnew Thread(gcnew ThreadStart(ModuleList[i], &UGVModule::threadFunction));
 		ThreadList[i]->Start();
 	}
-
+	Console::WriteLine(name + "set up...");
 	SM_TM_->ThreadBarrier->SignalAndWait();
+	Console::WriteLine(name + "running...");
 
 	for (int i = 0; i < ThreadList->Length; i++)
 	{
@@ -71,8 +74,8 @@ error_state ThreadManagement::processHeartbeat()
 			{
 				if (ModuleList[i]->bitmask & CRITICALMASK)
 				{
-
-					shutdownModules();
+					Console::WriteLine(name + "{0} failure, shutting down", ModuleList[i]->name);
+					SM_TM_->shutdown = 0xFF;
 					return error_state::ERR_CRITICAL_THREAD_FAILURE;
 				}
 
@@ -90,9 +93,6 @@ error_state ThreadManagement::processHeartbeat()
 
 	return error_state::SUCCESS;
 }
-void ThreadManagement::shutdownModules() {
-	SM_TM_->shutdown = 0xFF;
-}
 
 bool ThreadManagement::getShutdownFlag() {
 	return (SM_TM_->shutdown) & (this->bitmask);
@@ -100,14 +100,14 @@ bool ThreadManagement::getShutdownFlag() {
 
 void ThreadManagement::threadFunction()
 {
-	Console::WriteLine(this->name + "TMM Thread is starting");
+	Console::WriteLine(this->name + "starting...");
 
 	setupSharedMemory();
 	setupThreads();
 	
 	startThreads();
 	
-	Console::WriteLine(this->name + "TMM Thread is running...\nPress q to terminate");
+	Console::WriteLine(this->name + "Press q to terminate");
 
 	while (!getShutdownFlag())
 	{
@@ -117,8 +117,8 @@ void ThreadManagement::threadFunction()
 			break;
 		}
 	}
-	Console::WriteLine(this->name + "TMM Thread terminating all modules");
-	shutdownModules();
+	Console::WriteLine(this->name + "{0} failure, shutting down", this->name);
+	SM_TM_->shutdown = 0xFF;
 
 	//join all threads
 	for (int i = 0; i < ThreadList->Length; i++)

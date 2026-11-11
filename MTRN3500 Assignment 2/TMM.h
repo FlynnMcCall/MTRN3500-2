@@ -22,8 +22,6 @@ ref class ThreadManagement : public UGVModule {
 public:
     void threadFunction() override;
 
-    void shutdownModules();
-
     property uint8_t bitmask
     {
         uint8_t get() override {
