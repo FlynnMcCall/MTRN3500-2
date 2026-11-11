@@ -76,6 +76,8 @@ public:
     double Northing;
     double Easting;
     double Height;
+    uint32_t CRC;
+    uint32_t Computed_CRC;
 
     SM_GPS() {
         lockObject = gcnew Object();

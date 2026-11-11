@@ -20,9 +20,11 @@ For clarification of inheritance requirements see diagram in the assignment spec
 
 #define AUTHENICATION "5488467\n"
 
-#define LIDAR_PORT 23000
-#define GNSS_PORT  24000
-#define VC_PORT	   25000
+#define LIDAR_PORT	 23000
+#define GNSS_PORT	 24000
+#define VC_PORT		 25000
+#define GRU01_PORT	 26000
+#define DISPLAY_PORT 28000
 
 ref class NetworkedModule abstract : public UGVModule
 {

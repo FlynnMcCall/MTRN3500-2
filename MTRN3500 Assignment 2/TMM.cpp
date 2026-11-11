@@ -1,5 +1,6 @@
 #include "TMM.h"
 #include "LiDAR.h"
+#include "GNSS.h"
 
 #define TAG "[TMM]: "
 
@@ -20,7 +21,7 @@ error_state ThreadManagement::setupSharedMemory() {
 error_state ThreadManagement::setupThreads() {
 	ThreadPropertiesList = gcnew array<ThreadProperties^>{
 		gcnew ThreadProperties(gcnew ThreadStart(gcnew LiDAR(SM_TM_, SM_Laser_), &LiDAR::threadFunction), true, bit_LASER, "LiDAR Thread"),
-		// gcnew ThreadProperties(gcnew ThreadStart(gcnew GNSS(SM_TM_, SM_Laser_), &GNSS::threadFunction), false, bit_GPS, "GNSS Thread"),
+		gcnew ThreadProperties(gcnew ThreadStart(gcnew GNSS(SM_TM_, SM_GPS_), &GNSS::threadFunction), false, bit_GPS, "GNSS Thread"),
 	};
 
 	ThreadList = gcnew array<Thread^>(ThreadPropertiesList->Length);

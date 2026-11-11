@@ -86,6 +86,7 @@ void LiDAR::threadFunction() {
 		processSharedMemory();
 		processHeartbeat();
 	}
+	Console::WriteLine(TAG + "thread returning");
 }
 
 bool LiDAR::getShutdownFlag() {
