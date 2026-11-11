@@ -4,11 +4,9 @@
 // Keyboard : 1
 #define INPUT_MODE 1
 
-
-
-
 void Controller::threadFunction() {
 	ControllerInterface_ = new ControllerInterface(1, INPUT_MODE);
+	
 	while (!ControllerInterface_->IsConnected()) {
 		Thread::Sleep(50);
 	}
@@ -95,3 +93,4 @@ error_state Controller::processHeartbeat() {
 
 	return error_state::SUCCESS;
 }
+// */
