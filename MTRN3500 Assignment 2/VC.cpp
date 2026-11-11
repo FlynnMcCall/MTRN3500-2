@@ -43,10 +43,12 @@ error_state VehicleControl::processSharedMemory() {
 }
 
 void VehicleControl::threadFunction() {
+	Console::WriteLine(this->name + "starting...");
 	connect(WEEDER_ADDRESS, VC_PORT);
-	Console::WriteLine(this->name + "set up...");
 
+	Console::WriteLine(this->name + "set up...");
 	SM_TM_->ThreadBarrier->SignalAndWait();
+
 	Stopwatch_ = gcnew Stopwatch;
 	Stopwatch_->Start();
 	Console::WriteLine(name + "running...");
