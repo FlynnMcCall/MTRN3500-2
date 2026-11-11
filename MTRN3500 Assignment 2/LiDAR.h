@@ -36,8 +36,6 @@ protected:
 
     error_state processHeartbeat() override;
 
-    void setup();
-
 private:
     // Add any additional data members or helper functions here
     // SM_ThreadManagement^ SM_TM_;

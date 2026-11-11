@@ -6,13 +6,16 @@
 
 void Controller::threadFunction() {
 	ControllerInterface_ = new ControllerInterface(1, INPUT_MODE);
-	
 	while (!ControllerInterface_->IsConnected()) {
 		Thread::Sleep(50);
 	}
+
 	String^ mode = (INPUT_MODE == 0) ? "Xbox" : "keyboard";
 	Console::WriteLine(this->name + "Controller set up for {0}...", INPUT_MODE);
 	SM_TM_->ThreadBarrier->SignalAndWait();
+
+	Stopwatch_ = gcnew Stopwatch;
+	Stopwatch_->Start();
 
 	while (!getShutdownFlag()) {
 		processSharedMemory();
@@ -37,7 +40,6 @@ void Controller::blankCommands() {
 
 error_state Controller::processSharedMemory() {
 	_controllerState state = ControllerInterface_->GetState();
-
 	if (!state.isConnected) {
 		Console::WriteLine(this->name + "Controller disconnected, shutting down...");
 		SM_TM_->shutdown |= 0xFF;
@@ -51,7 +53,7 @@ error_state Controller::processSharedMemory() {
 
 	// Xbox
 	// controls are weird -> check in lab
-	if (INPUT_MODE == 0) {
+	if (INPUT_MODE == 0 ) {
 		Steering = state.rightThumbX;
 		Speed = state.rightTrigger - state.leftTrigger;
 		if (eps < Math::Abs(state.leftTrigger) && eps < Math::Abs(state.rightTrigger)) {
@@ -62,7 +64,10 @@ error_state Controller::processSharedMemory() {
 	// keyboard
 	if (INPUT_MODE == 1) {
 		Steering = state.rightThumbX;
-		Speed = state.rightThumbY;
+		Speed = state.rightTrigger - state.leftTrigger;
+		if (eps < Math::Abs(state.leftTrigger) && eps < Math::Abs(state.rightTrigger)) {
+			Speed = 0.0;
+		}
 	}
 	Monitor::Enter(SM_VehicleControl_->lockObject);
 	SM_VehicleControl_->Speed = Speed;
@@ -70,7 +75,7 @@ error_state Controller::processSharedMemory() {
 	Monitor::Exit(SM_VehicleControl_->lockObject);
 
 	Console::WriteLine(this->name + "\nSpeed\t{0:F2}\nSteer\t{1:F2}", Speed, Steering);
-
+	// */
 	return error_state::SUCCESS;
 }
 

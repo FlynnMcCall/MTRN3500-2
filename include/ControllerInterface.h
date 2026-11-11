@@ -18,7 +18,7 @@ rather than expecting an X-Box controller to be connected and used.
 
 // This defines all the inputs from the controller
 // It will be filled in for you by the GetState function
-// Note: if using keyboard input mode, only isConnected, rightThumbY, and rightThumbX are filled
+// Note: if using keyboard input mode, only isConnected, rightTrigger, leftTrigger, and rightThumbX are filled
 typedef value struct _controllerState {
     // Overall state
     bool isConnected;

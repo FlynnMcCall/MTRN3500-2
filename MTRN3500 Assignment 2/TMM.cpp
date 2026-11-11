@@ -21,8 +21,8 @@ error_state ThreadManagement::setupSharedMemory() {
 error_state ThreadManagement::setupThreads() {
 	ModuleList = gcnew array<UGVModule^>{
 		gcnew LiDAR(SM_TM_, SM_Laser_),
-		gcnew GNSS(SM_TM_, SM_GPS_),
-		//gcnew Controller(SM_TM_, SM_VehicleControl_),
+		//gcnew GNSS(SM_TM_, SM_GPS_),
+		gcnew Controller(SM_TM_, SM_VehicleControl_),
 	};
 
 	ThreadList = gcnew array<Thread^>(ModuleList->Length);
@@ -35,6 +35,7 @@ error_state ThreadManagement::setupThreads() {
 error_state ThreadManagement::startThreads() {
 	for (int i = 0; i < ModuleList->Length; i++)
 	{
+		Console::WriteLine(this->name + "launching {0}...", ModuleList[i]->name);
 		StopwatchList[i] = gcnew Stopwatch;
 		ThreadList[i] = gcnew Thread(gcnew ThreadStart(ModuleList[i], &UGVModule::threadFunction));
 		ThreadList[i]->Start();

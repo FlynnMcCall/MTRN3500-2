@@ -1,10 +1,5 @@
 #include "GNSS.h"
 
-void GNSS::setup() {
-	Stopwatch_ = gcnew Stopwatch;
-	Stopwatch_->Start();
-}
-
 error_state GNSS::connect(String^ hostName, int portNumber) {
 	Client = gcnew TcpClient(hostName, portNumber);
 	Stream = Client->GetStream();
@@ -100,10 +95,13 @@ error_state GNSS::processHeartbeat() {
 
 
 void GNSS::threadFunction() {
-	setup();
 	connect(WEEDER_ADDRESS, GNSS_PORT);
+
 	Console::WriteLine(this->name + "GNSS set up...");
 	SM_TM_->ThreadBarrier->SignalAndWait();
+
+	Stopwatch_ = gcnew Stopwatch;
+	Stopwatch_->Start();
 
 	while (!getShutdownFlag()) {
 		Thread::Sleep(100);

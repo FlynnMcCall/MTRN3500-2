@@ -1,10 +1,5 @@
 #include "LiDAR.h"
 
-void LiDAR::setup() {
-	Stopwatch_ = gcnew Stopwatch;
-	Stopwatch_->Start();
-}
-
 error_state LiDAR::connect(String^ hostName, int portNumber) {
 	Client = gcnew TcpClient(hostName, portNumber);
 	Stream = Client->GetStream();
@@ -75,10 +70,12 @@ error_state LiDAR::processSharedMemory() {
 }
 
 void LiDAR::threadFunction() {
-	setup();
 	connect(WEEDER_ADDRESS, LIDAR_PORT);
 	Console::WriteLine(this->name + "LiDAR set up...");
+
 	SM_TM_->ThreadBarrier->SignalAndWait();
+	Stopwatch_ = gcnew Stopwatch;
+	Stopwatch_->Start();
 
 	while (!getShutdownFlag()) {
 		communicate();

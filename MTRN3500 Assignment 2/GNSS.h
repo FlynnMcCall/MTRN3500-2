@@ -35,8 +35,6 @@ protected:
 
     error_state processHeartbeat() override;
 
-    void setup();
-
     void printData();
 
 private:
