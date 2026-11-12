@@ -26,13 +26,8 @@ public:
 
 
 protected:
-
-    bool getShutdownFlag() override;
-
     error_state processSharedMemory() override;
-
-    error_state processHeartbeat() override;
-
+    error_state controllerSetUp();
     void blankCommands();
 
 private:

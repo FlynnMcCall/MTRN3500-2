@@ -15,6 +15,12 @@ public:
             return "[GNSS] ";
         }
     }
+    property int port
+    {
+        int get() override {
+            return GNSS_PORT;
+        }
+    }
 
 
     GNSS::GNSS(SM_ThreadManagement^ SM_TM, SM_GPS^ SM_GPS)
@@ -24,16 +30,10 @@ public:
     }
 
     void threadFunction() override;
-
-    error_state connect(String^ hostName, int portNumber) override;
     error_state communicate() override;
 
 protected:
-    bool getShutdownFlag() override;
-
     error_state processSharedMemory() override;
-
-    error_state processHeartbeat() override;
 
     void printData();
 

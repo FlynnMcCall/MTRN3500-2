@@ -151,7 +151,9 @@
     <ClCompile Include="GNSS.cpp" />
     <ClCompile Include="LiDAR.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="NetworkedModule.cpp" />
     <ClCompile Include="TMM.cpp" />
+    <ClCompile Include="UGVModule.cpp" />
     <ClCompile Include="VC.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

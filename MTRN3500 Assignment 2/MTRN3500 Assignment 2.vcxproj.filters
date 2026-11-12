@@ -74,5 +74,11 @@
     <ClCompile Include="CrashAvoidance.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="UGVModule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NetworkedModule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

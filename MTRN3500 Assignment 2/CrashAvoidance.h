@@ -28,11 +28,7 @@ public:
     void threadFunction() override;
 
 protected:
-    bool getShutdownFlag() override;
-
     error_state processSharedMemory() override;
-
-    error_state processHeartbeat() override;
 
 private:
     // Add any additional data members or helper functions here

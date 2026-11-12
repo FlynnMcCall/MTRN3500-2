@@ -1,34 +1,5 @@
 #include "LiDAR.h"
 
-error_state LiDAR::connect(String^ hostName, int portNumber) {
-	Client = gcnew TcpClient(hostName, portNumber);
-	Stream = Client->GetStream();
-	Client->NoDelay = true;
-	Client->ReceiveTimeout = 500;
-	Client->SendTimeout = 500;
-	Client->ReceiveBufferSize = 2048;
-	Client->SendBufferSize = 1024;
-
-	SendData = gcnew array<unsigned char>(512);
-	ReadData = gcnew array<unsigned char>(2048);
-
-	SendData = Encoding::ASCII->GetBytes(AUTHENICATION);
-	Stream->Write(SendData, 0, SendData->Length);
-
-	System::Threading::Thread::Sleep(100);
-	int len = Stream->Read(ReadData, 0, ReadData->Length);
-	String^ resp = Encoding::ASCII->GetString(ReadData, 0, len);
-	if (!String::Equals(resp, "OK\n")) {
-		return error_state::ERR_CONNECTION;
-	}
-
-	/*
-	* Add extra config maybe?
-	* Verify settings with [SRN LMPscancfg]
-	*/
-	return error_state::SUCCESS;
-}
-
 error_state LiDAR::communicate() {
 
 	String^ cmd = "sRN LMDscandata";
@@ -70,15 +41,8 @@ error_state LiDAR::processSharedMemory() {
 }
 
 void LiDAR::threadFunction() {
-	Console::WriteLine(this->name + "starting...");
-
-	connect(WEEDER_ADDRESS, LIDAR_PORT);
-	Console::WriteLine(this->name + "set up...");
-
-	SM_TM_->ThreadBarrier->SignalAndWait();
-	Stopwatch_ = gcnew Stopwatch;
-	Stopwatch_->Start();
-	Console::WriteLine(name + "running...");
+	NetworkedModule::setUp();
+	authenticate();
 
 	while (!getShutdownFlag()) {
 		communicate();
@@ -87,29 +51,4 @@ void LiDAR::threadFunction() {
 		processHeartbeat();
 	}
 	Console::WriteLine(this->name + "thread returning");
-}
-
-bool LiDAR::getShutdownFlag() {
-    return (SM_TM_->shutdown) & (this->bitmask);
-}
-
-error_state LiDAR::processHeartbeat() {
-	if ((SM_TM_->heartbeat & this->bitmask) == 0)
-	{
-		SM_TM_->heartbeat |= this->bitmask;
-		Stopwatch_->Restart();
-	}
-
-	else
-	{
-		//check if the time elasped exceed the crash time limit
-		if (Stopwatch_->ElapsedMilliseconds > CRASH_LIMIT)
-		{
-			SM_TM_->shutdown = 0xFF;
-			Console::WriteLine(name + "TMM failure, shutting down");
-			return error_state::ERR_TMM_FAILURE;
-		}
-	}
-
-	return error_state::SUCCESS;
 }

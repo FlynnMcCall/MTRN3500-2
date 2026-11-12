@@ -16,6 +16,12 @@ public:
             return "[VehicleControl] ";
         }
     }
+    property int port
+    {
+        int get() override {
+            return VC_PORT;
+        }
+    }
 
 
     VehicleControl::VehicleControl(SM_ThreadManagement^ SM_TM, SM_VehicleControl^ SM_VehicleControl)
@@ -25,16 +31,10 @@ public:
     }
 
     void threadFunction() override;
-
-    error_state connect(String^ hostName, int portNumber) override;
     error_state communicate() override;
 
 protected:
-    bool getShutdownFlag() override;
-
     error_state processSharedMemory() override;
-
-    error_state processHeartbeat() override;
 
 private:
     // Add any additional data members or helper functions here

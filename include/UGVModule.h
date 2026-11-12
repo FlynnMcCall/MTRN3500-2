@@ -47,11 +47,11 @@ ref class UGVModule abstract
 		SM_ThreadManagement^ SM_TM_;
 		Stopwatch^ Stopwatch_;
 
+		virtual error_state setUp();
+		virtual error_state processHeartbeat();
+		bool getShutdownFlag();
+
 		virtual error_state processSharedMemory() = 0;
-
-		virtual error_state processHeartbeat() = 0;
-
-		virtual bool getShutdownFlag() = 0;
 
 		static void printError(error_state error)
 		{

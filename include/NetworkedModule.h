@@ -29,7 +29,11 @@ For clarification of inheritance requirements see diagram in the assignment spec
 ref class NetworkedModule abstract : public UGVModule
 {
 	public:
-		virtual error_state connect(String^ hostName, int portNumber) = 0;	// Establish TCP connection
+		property int port
+		{
+			virtual int get() = 0;
+		}
+		virtual error_state connect(String^ hostName, int portNumber);
 		virtual error_state communicate() = 0;								// Communicate over TCP connection (includes any error checking required on data)
 
 	protected:
@@ -37,4 +41,8 @@ ref class NetworkedModule abstract : public UGVModule
 		NetworkStream^ Stream;
 		array<unsigned char>^ SendData;
 		array<unsigned char>^ ReadData;	
+
+		error_state setUp() override;
+
+		error_state authenticate();
 };

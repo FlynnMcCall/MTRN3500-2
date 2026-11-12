@@ -43,11 +43,9 @@ protected:
 
     error_state startThreads();
 
-    bool getShutdownFlag() override;
-
     error_state processSharedMemory() override;
 
-    error_state processHeartbeat() override;
+    error_state manageHeartbeats();
 
 private:
     // Add any additional data members or helper functions here

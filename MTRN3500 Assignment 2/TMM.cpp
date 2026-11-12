@@ -62,7 +62,7 @@ error_state ThreadManagement::processSharedMemory() {
 	return error_state::SUCCESS;
 }
 
-error_state ThreadManagement::processHeartbeat()
+error_state ThreadManagement::manageHeartbeats()
 {
 	for (int i = 0; i < ThreadList->Length; i++)
 	{
@@ -98,30 +98,25 @@ error_state ThreadManagement::processHeartbeat()
 	return error_state::SUCCESS;
 }
 
-bool ThreadManagement::getShutdownFlag() {
-	return (SM_TM_->shutdown) & (this->bitmask);
-}
-
 void ThreadManagement::threadFunction()
 {
 	Console::WriteLine(this->name + "starting...");
 
 	setupSharedMemory();
 	setupThreads();
-	
 	startThreads();
 	
 	Console::WriteLine(this->name + "Press q to terminate");
 
 	while (!getShutdownFlag())
 	{
-		processHeartbeat();
+		manageHeartbeats();
 		Thread::Sleep(100);
 		if (Console::KeyAvailable && Console::ReadKey(true).Key == ConsoleKey::Q) {
 			break;
 		}
 	}
-	Console::WriteLine(this->name + "{0} failure, shutting down", this->name);
+	Console::WriteLine(this->name + "{0} shutting down all", this->name);
 	SM_TM_->shutdown = 0xFF;
 
 	//join all threads

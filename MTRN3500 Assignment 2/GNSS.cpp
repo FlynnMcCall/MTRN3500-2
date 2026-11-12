@@ -1,19 +1,5 @@
 #include "GNSS.h"
 
-error_state GNSS::connect(String^ hostName, int portNumber) {
-	Client = gcnew TcpClient(hostName, portNumber);
-	Stream = Client->GetStream();
-	Client->NoDelay = true;
-	Client->ReceiveTimeout = 500;
-	Client->SendTimeout = 500;
-	Client->ReceiveBufferSize = 2048;
-	Client->SendBufferSize = 1024;
-
-	SendData = gcnew array<unsigned char>(512);
-	ReadData = gcnew array<unsigned char>(1024);
-	return error_state::SUCCESS;
-}
-
 // vestigial (no commands needed)
 error_state GNSS::communicate() {
 	return error_state::SUCCESS;
@@ -73,39 +59,10 @@ void GNSS::printData() {
 	Monitor::Exit(SM_GPS_->lockObject);
 }
 
-error_state GNSS::processHeartbeat() {
-	if ((SM_TM_->heartbeat & this->bitmask) == 0)
-	{
-		SM_TM_->heartbeat |= this->bitmask;
-		Stopwatch_->Restart();
-	}
-
-	else
-	{
-		//check if the time elasped exceed the crash time limit
-		if (Stopwatch_->ElapsedMilliseconds > CRASH_LIMIT)
-		{
-			SM_TM_->shutdown = 0xFF;
-			Console::WriteLine(name + "TMM failure, shutting down");
-			return error_state::ERR_TMM_FAILURE;
-		}
-	}
-	return error_state::SUCCESS;
-}
-
 
 
 void GNSS::threadFunction() {
-	Console::WriteLine(this->name + "starting...");
-
-	connect(WEEDER_ADDRESS, GNSS_PORT);
-
-	Console::WriteLine(this->name + "set up...");
-	SM_TM_->ThreadBarrier->SignalAndWait();
-
-	Stopwatch_ = gcnew Stopwatch;
-	Stopwatch_->Start();
-	Console::WriteLine(name + "running...");
+	setUp();
 
 	while (!getShutdownFlag()) {
 		Thread::Sleep(100);
@@ -115,11 +72,6 @@ void GNSS::threadFunction() {
 	}
 	Console::WriteLine(this->name + "thread returning");
 }
-
-bool GNSS::getShutdownFlag() {
-	return (SM_TM_->shutdown) & (this->bitmask);
-}
-
 
 
 #define CRC32_POLYNOMIAL 0xEDB88320L
