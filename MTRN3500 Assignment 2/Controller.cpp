@@ -80,6 +80,7 @@ error_state Controller::processSharedMemory() {
 			Speed = 0.0;
 		}
 	}
+
 	Monitor::Enter(SM_VehicleControl_->lockObject);
 	SM_VehicleControl_->Speed = Speed;
 	SM_VehicleControl_->Steering = Steering;

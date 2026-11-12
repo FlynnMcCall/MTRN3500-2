@@ -104,6 +104,7 @@ public:
     Object^ lockObject;
     double Speed;
     double Steering;
+    bool freeze = true;
 
     SM_VehicleControl() {
         lockObject = gcnew Object();

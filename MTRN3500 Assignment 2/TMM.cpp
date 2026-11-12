@@ -27,7 +27,7 @@ error_state ThreadManagement::setupThreads() {
 	ModuleList = gcnew array<UGVModule^>{
 		gcnew LiDAR(SM_TM_, SM_Laser_),
 		gcnew GNSS(SM_TM_, SM_GPS_),
-		gcnew GRU01(SM_TM_, SM_GRU01_),
+		//gcnew GRU01(SM_TM_, SM_GRU01_),
 		gcnew Controller(SM_TM_, SM_VehicleControl_),
 		gcnew VehicleControl(SM_TM_, SM_VehicleControl_),
 		//gcnew Display(SM_TM_, SM_Laser_),

@@ -1,6 +1,5 @@
 #include "CrashAvoidance.h"
 
-
 void CrashAvoidance::threadFunction() {
 	setUp();
 
