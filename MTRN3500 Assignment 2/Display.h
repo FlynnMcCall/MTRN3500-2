@@ -34,6 +34,8 @@ public:
     {
         SM_TM_ = SM_TM;
         SM_Laser_ = SM_Laser;
+        dataX = gcnew array<Byte>(STANDARD_LASER_LENGTH * sizeof(double));
+        dataY = gcnew array<Byte>(STANDARD_LASER_LENGTH * sizeof(double));
     }
 
     void threadFunction() override;

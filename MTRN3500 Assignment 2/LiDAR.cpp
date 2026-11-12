@@ -33,8 +33,8 @@ error_state LiDAR::processSharedMemory() {
 	}
 
 	for (int i = 0; i < STANDARD_LASER_LENGTH; i++) {
-		SM_Laser_->x[i] =  Convert::ToInt32(Fragments[i + 26], 16) * Math::Sin(i * 0.5 * Math::PI / 180.0);
-		SM_Laser_->y[i] = -Convert::ToInt32(Fragments[i + 26], 16) * Math::Cos(i * 0.5 * Math::PI / 180.0);
+		SM_Laser_->x[i] = ( (double)Convert::ToInt32(Fragments[i + 26], 16) * Math::Sin(i * 0.5 * Math::PI / 180.0)) / 1000.;
+		SM_Laser_->y[i] = (-(double)Convert::ToInt32(Fragments[i + 26], 16) * Math::Cos(i * 0.5 * Math::PI / 180.0)) / 1000.;
 	}
 	Monitor::Exit(SM_Laser_->lockObject);
 	return error_state::SUCCESS;

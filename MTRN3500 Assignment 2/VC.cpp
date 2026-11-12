@@ -2,12 +2,9 @@
 
 error_state VehicleControl::communicate() {
 	w_dog = !w_dog;
-	if (Freeze) {
-		TargetSpeed = Math::Min(TargetSpeed, 0.0);
-	}
-
-	String^ text = String::Format("{0} {1} {2}", TargetSteer * 40.0, TargetSpeed, w_dog);
-	// Console::WriteLine(text);
+	double sendspeed = Freeze ? 0.0 : TargetSpeed;
+	String^ text = String::Format("# {0} {1} {2} #", TargetSteer * 40.0, sendspeed, w_dog);
+	//Console::WriteLine(text);
 	SendData = Encoding::ASCII->GetBytes(text);
 	Stream->Write(SendData, 0, SendData->Length);
 	return error_state::SUCCESS;
@@ -19,6 +16,7 @@ error_state VehicleControl::processSharedMemory() {
 	TargetSteer = SM_VehicleControl_->Steering;
 	TargetSpeed = SM_VehicleControl_->Speed;
 	Monitor::Exit(SM_VehicleControl_->lockObject);
+	
 	return error_state::SUCCESS;
 }
 
