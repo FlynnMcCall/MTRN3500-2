@@ -52,6 +52,7 @@ private:
     // SM_ThreadManagement^ SM_TM_;
     SM_Laser^ SM_Laser_;
     SM_GPS^ SM_GPS_;
+    SM_GPS^ SM_GRU01_;
     SM_VehicleControl^ SM_VehicleControl_;
 
     array<Stopwatch^>^ StopwatchList;

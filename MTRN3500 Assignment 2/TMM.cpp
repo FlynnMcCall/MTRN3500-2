@@ -5,6 +5,7 @@
 #include "VC.h"
 #include "Display.h"
 #include "CrashAvoidance.h"
+#include "GRU01.h"
 
 
 error_state ThreadManagement::setupSharedMemory() {
@@ -12,6 +13,7 @@ error_state ThreadManagement::setupSharedMemory() {
 		SM_TM_ = gcnew SM_ThreadManagement;
 		SM_Laser_ = gcnew SM_Laser;
 		SM_GPS_ = gcnew SM_GPS;
+		SM_GRU01_ = gcnew SM_GPS;
 		SM_VehicleControl_ = gcnew SM_VehicleControl;
 		return error_state::SUCCESS;
 	}
@@ -25,6 +27,7 @@ error_state ThreadManagement::setupThreads() {
 	ModuleList = gcnew array<UGVModule^>{
 		gcnew LiDAR(SM_TM_, SM_Laser_),
 		gcnew GNSS(SM_TM_, SM_GPS_),
+		gcnew GRU01(SM_TM_, SM_GRU01_),
 		gcnew Controller(SM_TM_, SM_VehicleControl_),
 		gcnew VehicleControl(SM_TM_, SM_VehicleControl_),
 		//gcnew Display(SM_TM_, SM_Laser_),

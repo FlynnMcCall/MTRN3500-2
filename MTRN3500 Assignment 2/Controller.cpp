@@ -60,6 +60,10 @@ error_state Controller::processSharedMemory() {
 
 	// Xbox
 	// controls are weird -> check in lab
+	if (INPUT_MODE == 0 &&  state.back) {
+		SM_TM_->shutdown |= 0xFF;
+		Console::WriteLine(this->name + "shutdown button pressed, shutting down...");
+	}
 	if (INPUT_MODE == 0 ) {
 		Steering = state.rightThumbX;
 		Speed = state.rightTrigger - state.leftTrigger;
