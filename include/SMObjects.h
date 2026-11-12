@@ -16,6 +16,7 @@ shared to other modules as required.
 using namespace System;
 using namespace System::Threading;
 using namespace System::Net::Sockets;
+using namespace System::IO::Ports;
 using namespace System::Net;
 using namespace System::Text;
 using namespace System::Diagnostics;
@@ -82,6 +83,20 @@ public:
         lockObject = gcnew Object();
     }
 };
+
+ref class SM_GRU01
+{
+public:
+    Object^ lockObject;
+    double N_combined;
+    double E_combined;
+    double Height;
+
+    SM_GRU01() {
+        lockObject = gcnew Object();
+    }
+};
+
 
 ref class SM_VehicleControl
 {

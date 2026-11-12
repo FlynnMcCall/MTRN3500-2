@@ -15,6 +15,12 @@ public:
             return "[GRU01] ";
         }
     }
+    property String^ address
+    {
+        String^ get() override {
+            return GRU01_ADDRESS;
+        }
+    }
     property int port
     {
         int get() override {
@@ -23,7 +29,7 @@ public:
     }
 
 
-    GRU01::GRU01(SM_ThreadManagement^ SM_TM, SM_GPS^ SM_GRU01)
+    GRU01::GRU01(SM_ThreadManagement^ SM_TM, SM_GRU01^ SM_GRU01)
     {
         SM_TM_ = SM_TM;
         SM_GRU01_ = SM_GRU01;
@@ -31,6 +37,7 @@ public:
 
     void threadFunction() override;
     error_state communicate() override;
+    // error_state connect() override;
 
 protected:
     error_state processSharedMemory() override;
@@ -40,8 +47,5 @@ protected:
 private:
     // Add any additional data members or helper functions here
     // SM_ThreadManagement^ SM_TM_;
-    SM_GPS^ SM_GRU01_;
+    SM_GRU01^ SM_GRU01_;
 };
-
-unsigned long CRC32Value(int i);
-unsigned long CalculateBlockCRC32(unsigned long ulCount, unsigned char* ucBuffer);

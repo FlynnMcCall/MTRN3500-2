@@ -16,6 +16,12 @@ public:
             return "[LiDAR] ";
         }
     }
+    property String^ address
+    {
+        String^ get() override {
+            return WEEDER_ADDRESS;
+        }
+    }
     property int port
     {
         int get() override {

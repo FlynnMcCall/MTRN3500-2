@@ -16,6 +16,12 @@ public:
             return "[Display] ";
         }
     }
+    property String^ address
+    {
+        String^ get() override {
+            return DISPLAY_ADDRESS;
+        }
+    }
     property int port
     {
         int get() override {

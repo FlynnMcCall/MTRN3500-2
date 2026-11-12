@@ -13,7 +13,7 @@ error_state ThreadManagement::setupSharedMemory() {
 		SM_TM_ = gcnew SM_ThreadManagement;
 		SM_Laser_ = gcnew SM_Laser;
 		SM_GPS_ = gcnew SM_GPS;
-		SM_GRU01_ = gcnew SM_GPS;
+		SM_GRU01_ = gcnew SM_GRU01;
 		SM_VehicleControl_ = gcnew SM_VehicleControl;
 		return error_state::SUCCESS;
 	}

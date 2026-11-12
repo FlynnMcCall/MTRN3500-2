@@ -1,7 +1,7 @@
 #include "NetworkedModule.h"
 
 error_state NetworkedModule::setUp() {
-	connect(WEEDER_ADDRESS, this->port);
+	connect(this->address, this->port);
 	return UGVModule::setUp();
 }
 

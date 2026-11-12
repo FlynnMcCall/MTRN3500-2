@@ -16,6 +16,8 @@ For clarification of inheritance requirements see diagram in the assignment spec
 // or the physical robot in the lab (192.168.1.200).
 #define WEEDER_ADDRESS "127.0.0.1"
 //#define WEEDER_ADDRESS "192.168.1.200"
+#define GRU01_ADDRESS "192.168.1.200"
+
 #define DISPLAY_ADDRESS "127.0.0.1" // Display is always running locally (run the MATLAB code separately)
 
 #define AUTHENICATION "5488467\n"
@@ -29,6 +31,10 @@ For clarification of inheritance requirements see diagram in the assignment spec
 ref class NetworkedModule abstract : public UGVModule
 {
 	public:
+		property String^ address
+		{
+			virtual String^ get() = 0;
+		}
 		property int port
 		{
 			virtual int get() = 0;

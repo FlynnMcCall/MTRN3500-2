@@ -2,22 +2,6 @@
 
 #include <UGVModule.h>
 
-ref struct ThreadProperties
-{
-    ThreadStart^ ThreadStart_;
-    bool Critical;
-    String^ ThreadName;
-    uint8_t BitID;
-
-    ThreadProperties(ThreadStart^ start, bool critical, uint8_t bit_id, String^ threadname)
-    {
-        ThreadStart_ = start;
-        Critical = critical;
-        BitID = bit_id;
-        ThreadName = threadname;
-    }
-};
-
 ref class ThreadManagement : public UGVModule {
 public:
     void threadFunction() override;
@@ -52,7 +36,7 @@ private:
     // SM_ThreadManagement^ SM_TM_;
     SM_Laser^ SM_Laser_;
     SM_GPS^ SM_GPS_;
-    SM_GPS^ SM_GRU01_;
+    SM_GRU01^ SM_GRU01_;
     SM_VehicleControl^ SM_VehicleControl_;
 
     array<Stopwatch^>^ StopwatchList;
