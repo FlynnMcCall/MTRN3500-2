@@ -27,15 +27,23 @@ error_state Controller::controllerSetUp() {
 }
 
 void Controller::threadFunction() {
-	controllerSetUp();
-	setUp();
+	error_state contr_setup_err = controllerSetUp();
+	if (contr_setup_err != error_state::SUCCESS) return;
+
+	error_state setup_err = setUp();
+	if (setup_err != error_state::SUCCESS) return;
 
 	while (!getShutdownFlag()) {
-		processSharedMemory();
-		processHeartbeat();
+		error_state mem_err = processSharedMemory();
+		if (mem_err != error_state::SUCCESS &&
+			mem_err != error_state::ERR_NO_DATA)
+		{
+			return;
+		}
+		error_state hb_err = processHeartbeat();
+		if (hb_err != error_state::SUCCESS) return;
 		Thread::Sleep(10);
 	}
-	delete ControllerInterface_;
 	blankCommands();
 	Console::WriteLine(this->name + "thread returning");
 }

@@ -15,15 +15,27 @@ error_state Display::processSharedMemory() {
 	return error_state::SUCCESS;
 }
 
+
 void Display::threadFunction() {
-	setUp();
+	error_state setup_err = setUp();
+	if (setup_err != error_state::SUCCESS) return;
 
 	while (!getShutdownFlag()) {
-		processSharedMemory();
-		communicate();
-		processHeartbeat();
+		error_state mem_err = processSharedMemory();
+		if (mem_err != error_state::SUCCESS &&
+			mem_err != error_state::ERR_NO_DATA)
+		{
+			return;
+		}
+		error_state comm_err = communicate();
+		if (comm_err != error_state::SUCCESS)
+		{
+			return;
+		}
+
+		error_state hb_err = processHeartbeat();
+		if (hb_err != error_state::SUCCESS) return;
 		Thread::Sleep(100);
 	}
-
 	Console::WriteLine(this->name + "thread returning");
 }

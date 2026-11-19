@@ -8,6 +8,9 @@ public:
         SM_TM_ = SM_TM;
         SM_VehicleControl_ = SM_VehicleControl;
     }
+    ~Controller() {
+        if (ControllerInterface_ != nullptr) delete ControllerInterface_;
+    }
 
     void threadFunction() override;
 
