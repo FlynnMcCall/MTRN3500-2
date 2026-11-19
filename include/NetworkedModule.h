@@ -39,16 +39,53 @@ ref class NetworkedModule abstract : public UGVModule
 		{
 			virtual int get() = 0;
 		}
-		virtual error_state connect(String^ hostName, int portNumber);
+		virtual error_state connect(String^ hostName, int portNumber) {
+			Client = gcnew TcpClient(hostName, portNumber);
+			Stream = Client->GetStream();
+			Client->NoDelay = true;
+			Client->ReceiveTimeout = 500;
+			Client->SendTimeout = 500;
+			Client->ReceiveBufferSize = 2048;
+			Client->SendBufferSize = 1024;
+
+			SendData = gcnew array<unsigned char>(1024);
+			ReadData = gcnew array<unsigned char>(2048);
+
+			return error_state::SUCCESS;
+		}
+
+
 		virtual error_state communicate() = 0;								// Communicate over TCP connection (includes any error checking required on data)
 
+		~NetworkedModule() {
+			if (Client != nullptr) Client->Close();
+		}
 	protected:
 		TcpClient^ Client;
 		NetworkStream^ Stream;
 		array<unsigned char>^ SendData;
 		array<unsigned char>^ ReadData;	
 
-		error_state setUp() override;
+		error_state setUp() override {
+			connect(this->address, this->port);
+			return UGVModule::setUp();
+		}
 
-		error_state authenticate();
+		error_state authenticate() {
+			SendData = Encoding::ASCII->GetBytes(AUTHENICATION);
+			Stream->Write(SendData, 0, SendData->Length);
+
+			System::Threading::Thread::Sleep(100);
+			try {
+				int len = Stream->Read(ReadData, 0, ReadData->Length);
+				String^ resp = Encoding::ASCII->GetString(ReadData, 0, len);
+				if (!String::Equals(resp, "OK\n")) {
+					return error_state::ERR_CONNECTION;
+				}
+				return error_state::SUCCESS;
+			}
+			catch (Exception^ e) {
+				return error_state::ERR_CONNECTION;
+			}
+		}
 };

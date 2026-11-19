@@ -3,7 +3,7 @@
 error_state VehicleControl::communicate() {
 	w_dog = !w_dog;
 	double sendspeed = Freeze ? 0.0 : TargetSpeed;
-	String^ text = String::Format("# {0} {1} {2} #", TargetSteer * 40.0, sendspeed, w_dog);
+	String^ text = String::Format("# {0} {1} {2} #", TargetSteer * 40.0, sendspeed, (int)w_dog);
 	//Console::WriteLine(text);
 	SendData = Encoding::ASCII->GetBytes(text);
 	Stream->Write(SendData, 0, SendData->Length);
@@ -21,14 +21,23 @@ error_state VehicleControl::processSharedMemory() {
 }
 
 void VehicleControl::threadFunction() {
-	setUp();
-	authenticate();
+	error_state setup_err = setUp();
+	if (setup_err != error_state::SUCCESS) return;
+
+	error_state auth_err = authenticate();
+	if (auth_err != error_state::SUCCESS) return;
 
 	while (!getShutdownFlag()) {
-		communicate();
+		error_state comm_err = communicate();
+		if (comm_err != error_state::SUCCESS) return;
+		
 		Thread::Sleep(100);
-		processSharedMemory();
-		processHeartbeat();
+
+		error_state mem_err = processSharedMemory();
+		if (mem_err != error_state::SUCCESS) return;
+
+		error_state hb_err = processHeartbeat();
+		if (hb_err != error_state::SUCCESS) return;
 	}
 
 	TargetSteer = 0.0;

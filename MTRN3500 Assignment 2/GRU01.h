@@ -37,12 +37,10 @@ public:
 
     void threadFunction() override;
     error_state communicate() override;
-    // error_state connect() override;
+    error_state connect(String^ hostName, int portNumber) override;
 
 protected:
     error_state processSharedMemory() override;
-
-    void printData();
 
 private:
     // Add any additional data members or helper functions here

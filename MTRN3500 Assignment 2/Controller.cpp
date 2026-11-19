@@ -4,6 +4,8 @@
 // Keyboard : 1
 #define INPUT_MODE 1
 
+void PrintControllerState(controllerState% s);
+
 error_state Controller::controllerSetUp() {
 	Console::WriteLine(this->name + "connecting...");
 
@@ -47,6 +49,7 @@ void Controller::blankCommands() {
 
 error_state Controller::processSharedMemory() {
 	_controllerState state = ControllerInterface_->GetState();
+	//PrintControllerState(state);
 	if (!state.isConnected) {
 		Console::WriteLine(this->name + "Controller disconnected, shutting down...");
 		SM_TM_->shutdown |= 0xFF;
@@ -58,28 +61,9 @@ error_state Controller::processSharedMemory() {
 	double Steering = 0;
 	double eps = 1e-2;
 
-	// Xbox
-	// controls are weird -> check in lab
-	if (INPUT_MODE == 0 &&  state.back) {
-		SM_TM_->shutdown |= 0xFF;
-		Console::WriteLine(this->name + "shutdown button pressed, shutting down...");
-	}
-	if (INPUT_MODE == 0 ) {
-		Steering = state.rightThumbX;
-		Speed = state.rightTrigger - state.leftTrigger;
-		if (eps < Math::Abs(state.leftTrigger) && eps < Math::Abs(state.rightTrigger)) {
-			Speed = 0.0;
-		}
-	}
-
-	// keyboard
-	if (INPUT_MODE == 1) {
-		Steering = state.rightThumbX;
-		Speed = state.rightTrigger - state.leftTrigger;
-		if (eps < Math::Abs(state.leftTrigger) && eps < Math::Abs(state.rightTrigger)) {
-			Speed = 0.0;
-		}
-	}
+	Steering = -state.rightThumbX;
+	Speed = state.rightTrigger - state.leftTrigger;
+	//Console::WriteLine(name + "{0}, {1}, {2}", state.leftTrigger, state.rightTrigger, Speed);
 
 	Monitor::Enter(SM_VehicleControl_->lockObject);
 	SM_VehicleControl_->Speed = Speed;
@@ -92,3 +76,20 @@ error_state Controller::processSharedMemory() {
 }
 
 // */
+
+void PrintControllerState(controllerState% s)
+{
+	Console::WriteLine("Connected: {0}", s.isConnected);
+
+	Console::WriteLine("Left Thumb  X: {0,6:F3}  Y: {1,6:F3}", s.leftThumbX, s.leftThumbY);
+	Console::WriteLine("Right Thumb X: {0,6:F3}  Y: {1,6:F3}", s.rightThumbX, s.rightThumbY);
+	Console::WriteLine("Triggers    L: {0,6:F3}  R: {1,6:F3}", s.leftTrigger, s.rightTrigger);
+
+	Console::WriteLine("Buttons  A:{0} B:{1} X:{2} Y:{3}",
+		s.buttonA, s.buttonB, s.buttonX, s.buttonY);
+	Console::WriteLine("D-Pad    Up:{0} Down:{1} Left:{2} Right:{3}",
+		s.DpadUp, s.DpadDown, s.DpadLeft, s.DpadRight);
+	Console::WriteLine("Thumbs   L:{0} R:{1}", s.leftThumb, s.rightThumb);
+	Console::WriteLine("Shoulder L:{0} R:{1}", s.leftShoulder, s.rightShoulder);
+	Console::WriteLine("Start:{0} Back:{1}", s.start, s.back);
+}

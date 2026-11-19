@@ -19,9 +19,15 @@ error_state LiDAR::communicate() {
 error_state LiDAR::processSharedMemory() {
 	int len = Stream->Read(ReadData, 0, ReadData->Length);
 	String^ response = Encoding::ASCII->GetString(ReadData, 0, len);
+	//Console::WriteLine(name + "{0}", response);
 
 	array<String^>^ Fragments;
 	Fragments = response->Split(' ');
+
+	if (Fragments->Length <= 26) {
+		Console::WriteLine(this->name + "Response too short");
+		return error_state::ERR_INVALID_DATA;
+	}
 
 	Monitor::Enter(SM_Laser_->lockObject);
 	int NumPoints = Convert::ToInt32(Fragments[25], 16);
@@ -29,7 +35,8 @@ error_state LiDAR::processSharedMemory() {
 	if (NumPoints != STANDARD_LASER_LENGTH) {
 		Console::WriteLine(this->name + "Wrong number of points. got {0}, expected {1}", NumPoints, STANDARD_LASER_LENGTH);
 		Monitor::Exit(SM_Laser_->lockObject);
-		throw gcnew Exception(this->name + "Wrong number of points");
+		return error_state::ERR_INVALID_DATA;
+		//throw gcnew Exception(this->name + "Wrong number of points");
 	}
 
 	for (int i = 0; i < STANDARD_LASER_LENGTH; i++) {
@@ -39,16 +46,25 @@ error_state LiDAR::processSharedMemory() {
 	Monitor::Exit(SM_Laser_->lockObject);
 	return error_state::SUCCESS;
 }
-
 void LiDAR::threadFunction() {
-	NetworkedModule::setUp();
-	authenticate();
+	error_state setup_err = setUp();
+	if (setup_err != error_state::SUCCESS) return;
+
+	error_state auth_err = authenticate();
+	if (auth_err != error_state::SUCCESS) return;
 
 	while (!getShutdownFlag()) {
-		communicate();
+		error_state comm_err = communicate();
+		if (comm_err != error_state::SUCCESS) return;
+
 		Thread::Sleep(100);
-		processSharedMemory();
-		processHeartbeat();
+
+		error_state mem_err = processSharedMemory();
+		if (mem_err != error_state::SUCCESS) return;
+
+		error_state hb_err = processHeartbeat();
+		if (hb_err != error_state::SUCCESS) return;
 	}
+
 	Console::WriteLine(this->name + "thread returning");
 }

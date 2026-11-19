@@ -47,9 +47,36 @@ ref class UGVModule abstract
 		SM_ThreadManagement^ SM_TM_;
 		Stopwatch^ Stopwatch_;
 
-		virtual error_state setUp();
-		virtual error_state processHeartbeat();
-		bool getShutdownFlag();
+		virtual error_state setUp() {
+			Console::WriteLine(this->name + "waiting...");
+			SM_TM_->ThreadBarrier->SignalAndWait();
+
+			Console::WriteLine(this->name + "running...");
+			Stopwatch_ = gcnew Stopwatch;
+			Stopwatch_->Start();
+			return error_state::SUCCESS;
+		}
+		virtual error_state processHeartbeat() {
+			if (Stopwatch_ == nullptr) Console::WriteLine(this->name);
+			if ((SM_TM_->heartbeat & this->bitmask) == 0)
+			{
+				SM_TM_->heartbeat |= this->bitmask;
+				Stopwatch_->Restart();
+			}
+			else
+			{
+				if (Stopwatch_->ElapsedMilliseconds > CRASH_LIMIT)
+				{
+					SM_TM_->shutdown = 0xFF;
+					Console::WriteLine(name + "TMM failure, shutting down");
+					return error_state::ERR_TMM_FAILURE;
+				}
+			}
+			return error_state::SUCCESS;
+		}
+		bool getShutdownFlag() {
+			return (SM_TM_->shutdown) & (this->bitmask);
+		}
 
 		virtual error_state processSharedMemory() = 0;
 
@@ -72,3 +99,4 @@ ref class UGVModule abstract
 
 		
 };
+
