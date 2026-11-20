@@ -69,7 +69,7 @@ error_state Controller::processSharedMemory() {
 	double Steering = 0;
 	double eps = 1e-2;
 
-	Steering = -state.rightThumbX;
+	Steering = -state.rightThumbX * 40.0;
 	Speed = state.rightTrigger - state.leftTrigger;
 	//Console::WriteLine(name + "{0}, {1}, {2}", state.leftTrigger, state.rightTrigger, Speed);
 

@@ -17,14 +17,14 @@ public:
         }
     }
 
-
-    CrashAvoidance::CrashAvoidance(SM_ThreadManagement^ SM_TM, SM_Laser^ SM_Laser, SM_VehicleControl^ SM_VehicleControl)
+    CrashAvoidance(SM_ThreadManagement^ SM_TM, SM_Laser^ SM_Laser, SM_VehicleControl^ SM_VehicleControl)
     {
         SM_TM_ = SM_TM;
         SM_Laser_ = SM_Laser;
         SM_VehicleControl_ = SM_VehicleControl;
         dataX = gcnew array<double>(STANDARD_LASER_LENGTH);
         dataY = gcnew array<double>(STANDARD_LASER_LENGTH);
+        if (d_min > d_throttle) throw gcnew Exception("d_throttle must be larger than d_min");
     }
 
     void threadFunction() override;
@@ -32,10 +32,11 @@ public:
 protected:
     error_state processSharedMemory() override;
 
-    // return true if collision predicted
-    bool checkCollisions();
+    double rectCollision();
+    double rotoCollision();
 
-    bool CrashAvoidance::lookAhead(double radius, double lookahead_r);
+    double findThrottle(double d_crash);
+
     error_state copyData();
 
 private:
@@ -44,16 +45,17 @@ private:
     SM_Laser^ SM_Laser_;
     SM_VehicleControl^ SM_VehicleControl_;
     
-    double nogo_front = 1.0;  // how far forwards the nogo zone protrudes (m)
-    double vehicleWidth = 1.0;
-    double vehicleLength = 1.0; // axel-to-axel length of vehicle
+    double use_rect_deg = 1.; // degrees at which to use rect instead of rotating detection
 
-    double secondsLookahead = 1.0; // how many seconds we look ahead
-    int numIts = 10; // num its
+    double d_min = 0.3;
+    double d_throttle = 1.0;
 
-    bool Freeze = false;
+    // geometry
+    double vehicleWidth = 0.75;
+    double vehicleLength = 0.68; // axel-to-axel length of vehicle
+    double LidarOffset = 0.2;
+
     double TargetSteer = 0;
-    double TargetSpeed = 0;
 
     array<double>^ dataX;
     array<double>^ dataY;

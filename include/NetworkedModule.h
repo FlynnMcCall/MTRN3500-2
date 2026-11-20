@@ -59,6 +59,7 @@ ref class NetworkedModule abstract : public UGVModule
 
 		~NetworkedModule() {
 			if (Client != nullptr) Client->Close();
+			if (Stream != nullptr) Stream->Close();
 		}
 	protected:
 		TcpClient^ Client;

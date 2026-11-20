@@ -45,7 +45,7 @@ protected:
 private:
     // Add any additional data members or helper functions here
     // SM_ThreadManagement^ SM_TM_;
-    bool Freeze = false;
+    double Throttle = 1.0;
     double TargetSteer = 0;
     double TargetSpeed = 0;
     bool w_dog = true;

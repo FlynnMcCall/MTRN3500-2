@@ -2,8 +2,15 @@
 
 error_state VehicleControl::communicate() {
 	w_dog = !w_dog;
-	double sendspeed = Freeze ? 0.0 : TargetSpeed;
-	String^ text = String::Format("# {0} {1} {2} #", TargetSteer * 40.0, sendspeed, (int)w_dog);
+	double sendspeed = TargetSpeed;
+	if (0 <= Throttle && Throttle <= 1.0) {
+		sendspeed = TargetSpeed * Throttle;
+	}
+	else {
+		Console::WriteLine(name + "Invalid throttle of {0}", Throttle);
+	}
+
+	String^ text = String::Format("# {0} {1} {2} #", TargetSteer, sendspeed, (int)w_dog);
 	//Console::WriteLine(text);
 	SendData = Encoding::ASCII->GetBytes(text);
 	Stream->Write(SendData, 0, SendData->Length);
@@ -12,7 +19,7 @@ error_state VehicleControl::communicate() {
 
 error_state VehicleControl::processSharedMemory() {
 	Monitor::Enter(SM_VehicleControl_->lockObject);
-	Freeze = SM_VehicleControl_->freeze;
+	Throttle = SM_VehicleControl_->throttle;
 	TargetSteer = SM_VehicleControl_->Steering;
 	TargetSpeed = SM_VehicleControl_->Speed;
 	Monitor::Exit(SM_VehicleControl_->lockObject);

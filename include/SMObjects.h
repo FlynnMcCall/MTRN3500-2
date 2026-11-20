@@ -103,8 +103,8 @@ ref class SM_VehicleControl
 public:
     Object^ lockObject;
     double Speed;
-    double Steering;
-    bool freeze = false;
+    double Steering; // deg
+    double throttle = 1.0;
 
     SM_VehicleControl() {
         lockObject = gcnew Object();
